@@ -43,32 +43,33 @@ Preferred: dump your own (guarantees firmware match). The Thor's stock ROM permi
 ```bash
 adb root                          # restarts adbd with root
 adb shell getprop ro.boot.slot_suffix   # note active slot (_a or _b)
-adb shell dd if=/dev/block/bootdevice/by-name/init_boot_a of=/sdcard/init_boot_a.img
-adb shell dd if=/dev/block/bootdevice/by-name/init_boot_b of=/sdcard/init_boot_b.img
-adb pull /sdcard/init_boot_a.img
-adb pull /sdcard/init_boot_b.img
+adb exec-out "dd if=/dev/block/bootdevice/by-name/init_boot_a 2>/dev/null" > data/init_boot_a.img
+adb exec-out "dd if=/dev/block/bootdevice/by-name/init_boot_b 2>/dev/null" > data/init_boot_b.img
 adb unroot
 ```
 
 - If `adb root` returns `adbd cannot run as root in production builds`, look for a root/ADB toggle in the Thor's settings (AYN ships a permissive build; the XDA thread runs this same script via adb root).
-- Users in the thread found both slots identical — verify yours: `sha256sum init_boot_a.img init_boot_b.img`. Use the active slot's image for patching.
+- `exec-out` streams the partition straight to the PC — nothing written on the Thor. Sanity-check the result: each file should be several MiB (typically 8 MiB), not 0 bytes.
+- Users in the thread found both slots identical — verify yours: `sha256sum data/init_boot_a.img data/init_boot_b.img`. Use the active slot's image for patching.
 - Same method dumps the optional extras from step 0: swap in `boot_a`/`vendor_boot_a` etc. as the partition name.
 
 Shortcut: use the pre-dumped `init_boot.img` attached to the thread (only if your firmware version matches).
 
-Keep a backup copy: `cp init_boot_a.img init_boot.stock.img` (assuming `_a` is active)
+Keep a backup copy: `cp data/init_boot_a.img data/init_boot.stock.img` (assuming `_a` is active)
+
+All images live in `data/` (gitignored — never committed).
 
 ## 3. Patch with Magisk
 
 1. Install the latest **Magisk APK** on the Thor (from the official GitHub: https://github.com/topjohnwu/Magisk/releases).
-2. Copy the active slot's image to the Thor (skip if the dump from step 2 is still in `/sdcard/`):
+2. Copy the active slot's image to the Thor:
    ```bash
-   adb push init_boot_a.img /sdcard/Download/
+   adb push data/init_boot_a.img /sdcard/Download/
    ```
 3. In Magisk: **Install → Select and Patch a File** → choose the image.
 4. Pull the result back:
    ```bash
-   adb pull /sdcard/Download/magisk_patched-XXXXX.img .
+   adb pull /sdcard/Download/magisk_patched-XXXXX.img data/
    ```
 
 (The XDA thread includes a pre-patched image, but patching yourself gets the current Magisk version.)
@@ -78,14 +79,14 @@ Keep a backup copy: `cp init_boot_a.img init_boot.stock.img` (assuming `_a` is a
 ```bash
 adb reboot bootloader
 fastboot devices                 # must list the Thor
-fastboot flash init_boot magisk_patched-XXXXX.img
+fastboot flash init_boot data/magisk_patched-XXXXX.img
 fastboot reboot
 ```
 
 Optional (done by a user in the thread after confirming both slots were identical):
 ```bash
-fastboot flash init_boot_a magisk_patched-XXXXX.img
-fastboot flash init_boot_b magisk_patched-XXXXX.img
+fastboot flash init_boot_a data/magisk_patched-XXXXX.img
+fastboot flash init_boot_b data/magisk_patched-XXXXX.img
 ```
 
 ## 5. Verify
@@ -102,7 +103,7 @@ Open the Magisk app → should show **Installed: <version>**. Done — you're ro
 
 Flash the stock `init_boot.stock.img` back:
 ```bash
-fastboot flash init_boot init_boot.stock.img
+fastboot flash init_boot data/init_boot.stock.img
 ```
 This undoes everything this guide changes — no full ROM needed for that.
 
