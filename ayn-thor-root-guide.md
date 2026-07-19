@@ -10,8 +10,14 @@ All installed games, GameNative containers, and saves survive this process.
 
 ## 0. Insurance first
 
-- [ ] Join the AYN Discord and download the **full stock ROM** someone posted there — do this *before* flashing anything, so you have a revert path.
-- [ ] Keep an untouched copy of your stock `init_boot.img` (step 2) somewhere safe.
+> **Update 2026-07-19:** The full stock ROM is **no longer downloadable from the AYN Discord**. Emailed AYN support asking for it — awaiting reply.
+
+Without a full ROM, the insurance plan is:
+
+- [ ] **Dump your own stock `init_boot.img` (step 2) and back it up in ≥2 places** (PC + cloud). This is now the primary revert path — and it's genuinely sufficient for the root process itself, since `init_boot` is the *only* partition this guide flashes. Flashing the stock dump back fully unroots.
+- [ ] Optional extra insurance: while dumping, also grab `boot.img` and `vendor_boot.img` (same dump method, different partition names). Not needed for this guide, but cheap to do now and impossible after a bad flash.
+- [ ] Secondary source: the pre-dumped stock `init_boot.img` attached to the XDA thread (verify firmware version matches yours).
+- [ ] If AYN support sends the full ROM, save it to `data/` — it's the only fix for a catastrophic brick (wrong partition flashed, corrupted flash, failed OTA). Fine to proceed without it given the small blast radius of an `init_boot`-only flash, but don't flash anything beyond `init_boot` until you have it.
 
 ## 1. PC setup (CachyOS)
 
@@ -83,4 +89,6 @@ Flash the stock `init_boot.stock.img` back:
 ```bash
 fastboot flash init_boot init_boot.stock.img
 ```
-If things go badly wrong, restore the full stock ROM from the AYN Discord.
+This undoes everything this guide changes — no full ROM needed for that.
+
+If things go badly wrong *beyond* init_boot (shouldn't happen if you only run the commands above): full stock ROM required. Not currently downloadable from Discord — waiting on AYN support (emailed 2026-07-19). Other options: ask in the XDA thread or AYN Discord for a re-upload.
