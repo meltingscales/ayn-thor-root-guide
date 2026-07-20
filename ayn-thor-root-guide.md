@@ -1,13 +1,13 @@
 # AYN Thor Rooting Guide (CachyOS / Arch Linux)
 
-**Prerequisite: unlocked bootloader.** Check yours before starting — reboot into the bootloader (`adb reboot bootloader`) and read the screen:
+**Prerequisite: unlocked bootloader.** Check yours before starting — reboot into the bootloader (`adb reboot bootloader`, needs the adb setup from step 1; or power off, then hold the bootloader key combo) and read the screen:
 
 - `DEVICE STATE - unlocked` → good, skip ahead. No data wipe needed; installed games, GameNative containers, and saves all survive the rooting process itself.
 - `DEVICE STATE - locked` → you must unlock first. **WARNING: unlocking the bootloader performs a full factory reset — it wipes ALL data on the device** (apps, games, saves, accounts). Back up everything you care about first. Then: **Settings → Developer Options → OEM unlocking** (enable), reboot to bootloader, and run:
   ```bash
   fastboot flashing unlock
   ```
-  Confirm on the device screen (volume keys + power). An unlocked bootloader also shows a warning screen on every boot and may trip strict app integrity checks — that's the trade for root.
+  Confirm on the device screen (volume keys + power). If `flashing unlock` reports an unknown command, try `fastboot oem unlock`. An unlocked bootloader also shows a warning screen on every boot and may trip strict app integrity checks — that's the trade for root.
 
 **Reference:** XDA thread "Ayn thor rooting guide" — https://xdaforums.com/t/ayn-thor-rooting-guide.4767974/
 (Contains the init_boot dump script, a pre-dumped stock init_boot, and a pre-patched Magisk image.)
@@ -68,7 +68,7 @@ Preferred: dump your own (guarantees firmware match). `adb root` does **not** wo
 - Both slots are normally identical (differ only right after an OTA: `_a` newer, `_b` older). Verify: `sha256sum data/init_boot_a.img data/init_boot_b.img`. Active slot: `adb shell getprop ro.boot.slot_suffix`. Use the active slot's image for patching.
 - Same method dumps the optional extras from step 0: add `boot_a`/`vendor_boot_a` etc. lines to the script.
 
-Shortcut: use the pre-dumped `init_boot.img` attached to the thread (only if your firmware version matches).
+Shortcut: use the pre-dumped `init_boot_a.img` attached to the thread (only if your firmware version matches).
 
 Keep a backup copy: `cp data/init_boot_a.img data/init_boot.stock.img` (assuming `_a` is active)
 

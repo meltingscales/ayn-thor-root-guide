@@ -44,12 +44,12 @@ ls -la "/path/found/above"
 From the PC (not the adb shell) — `adb pull` can't read root-only paths directly, so stage through internal storage:
 
 ```bash
-adb shell su -c 'cp -r "/data/data/app.gamenative/.../Dr Lunatic Supreme With Cheese" /storage/emulated/0/Download/drl-backup'
+adb shell su -c 'cp -a "/data/data/app.gamenative/.../Dr. Lunatic Supreme With Cheese" /storage/emulated/0/Download/drl-backup'
 adb pull /storage/emulated/0/Download/drl-backup data/
 adb shell rm -r /storage/emulated/0/Download/drl-backup
 ```
 
-If the game turned out to live under `/storage/emulated/0/Android/data/...`, skip the staging: `adb pull` that path directly with `adb shell su -c` staging only if permission is denied.
+If the game turned out to live under `/storage/emulated/0/Android/data/...` instead, try `adb pull` on that path directly first — fall back to the root-staging method above only if it's permission-denied.
 
 ## Result on my Thor (2026-07-19)
 

@@ -53,7 +53,7 @@ adb push /tmp/install_worlds.sh /storage/emulated/0/Download/
 adb shell "su -c 'sh /storage/emulated/0/Download/install_worlds.sh'"
 ```
 
-Expected: `DONE worlds=530` (529 + a `[name here].dlw` placeholder from the zip).
+Expected: `DONE worlds=531` (529 worlds plus two extra files the zip ships in `worlds/`, e.g. a `[name here].dlw` placeholder).
 
 Quoting note: `adb shell su -c '<multi-line script>'` gets mangled by the local shell — push the script and run it with `sh` instead.
 
