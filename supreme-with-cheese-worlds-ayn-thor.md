@@ -30,14 +30,17 @@ adb push /tmp/supreme_worlds /storage/emulated/0/Download/supreme_worlds
 Two gotchas the script handles:
 
 - Files copied by root into `/data/data/` are root-owned — `chown` back to the game's uid.
-- SELinux: app data files need the app's per-uid category label (e.g. `s0:c128,c256,c512,c768`). **Do not use `restorecon`** — it strips the categories, which silently breaks the app's *writes* (saves). Use `chcon` with the label copied from an untouched sibling dir (`ls -dZ` on the game dir's parent shows it).
+- SELinux: app data files need the app's per-uid category label (e.g. `s0:c128,c256,c512,c768` — the numbers differ per device/user). **Do not use `restorecon`** — it strips the categories, which silently breaks the app's *writes* (saves). The script copies the label from the app's own data dir at runtime.
 
 ```bash
 cat > /tmp/install_worlds.sh <<'EOF'
-GAME="/data/data/app.gamenative/Steam/steamapps/common/Dr. Lunatic Supreme With Cheese"
+PKGDIR="/data/data/app.gamenative"
+GAME="$PKGDIR/Steam/steamapps/common/Dr. Lunatic Supreme With Cheese"
 APP="$GAME/appdata/supreme"
-CTX="u:object_r:app_data_file:s0:c128,c256,c512,c768"   # from ls -dZ on a sibling dir
-OWN=$(stat -c "%u:%g" "$GAME") || exit 1
+CTX=$(ls -dZ "$PKGDIR" | awk '{print $1}')   # per-uid label, derived not hardcoded
+OWN=$(stat -c "%u:%g" "$PKGDIR") || exit 1
+[ -d "$GAME" ] || { echo "game dir not found"; exit 1; }
+case "$CTX" in u:object_r:*) ;; *) echo "bad context: $CTX"; exit 1;; esac
 for d in worlds user music; do
   mkdir -p "$APP/$d" || exit 1
   cp -a "/storage/emulated/0/Download/supreme_worlds/$d/." "$APP/$d/" || exit 1
