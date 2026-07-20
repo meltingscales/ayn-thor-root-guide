@@ -1,7 +1,13 @@
 # AYN Thor Rooting Guide (CachyOS / Arch Linux)
 
-**Status:** Bootloader already shows `DEVICE STATE - unlocked` → no data wipe needed.
-All installed games, GameNative containers, and saves survive this process.
+**Prerequisite: unlocked bootloader.** Check yours before starting — reboot into the bootloader (`adb reboot bootloader`) and read the screen:
+
+- `DEVICE STATE - unlocked` → good, skip ahead. No data wipe needed; installed games, GameNative containers, and saves all survive the rooting process itself.
+- `DEVICE STATE - locked` → you must unlock first. **WARNING: unlocking the bootloader performs a full factory reset — it wipes ALL data on the device** (apps, games, saves, accounts). Back up everything you care about first. Then: **Settings → Developer Options → OEM unlocking** (enable), reboot to bootloader, and run:
+  ```bash
+  fastboot flashing unlock
+  ```
+  Confirm on the device screen (volume keys + power). An unlocked bootloader also shows a warning screen on every boot and may trip strict app integrity checks — that's the trade for root.
 
 **Reference:** XDA thread "Ayn thor rooting guide" — https://xdaforums.com/t/ayn-thor-rooting-guide.4767974/
 (Contains the init_boot dump script, a pre-dumped stock init_boot, and a pre-patched Magisk image.)
